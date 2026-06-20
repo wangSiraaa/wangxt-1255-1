@@ -1,0 +1,30 @@
+.dialog-content {
+  min-width: 520px;
+  padding: 8px 0;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 4px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+mat-dialog-actions {
+  padding: 12px 24px 20px;
+  gap: 8px;
+
+  button[type='submit'] {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}

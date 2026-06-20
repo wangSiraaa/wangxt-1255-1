@@ -1,0 +1,109 @@
+<h2 mat-dialog-title>{{ isViewOnly ? '订单详情' : (isEdit ? '编辑动物订单' : '新增动物订单') }}</h2>
+
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <mat-dialog-content class="dialog-content">
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>所属课题组 *</mat-label>
+        <mat-select formControlName="researchGroupId" [disabled]="isViewOnly">
+          @for (group of researchGroups; track group.id) {
+            <mat-option [value]="group.id">
+              {{ group.code }} - {{ group.name }}
+            </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>伦理批件 *</mat-label>
+        <mat-select formControlName="ethicsApprovalId" [disabled]="isViewOnly">
+          @if (!filteredApprovals.length && !form.get('researchGroupId')?.value) {
+            <mat-option disabled>请先选择课题组</mat-option>
+          }
+          @for (approval of filteredApprovals; track approval.id) {
+            <mat-option [value]="approval.id">
+              {{ approval.approvalNumber }} ({{ approval.usedAnimalCount || 0 }}/{{ approval.maxAnimalCount }})
+            </mat-option>
+          }
+          @if (!filteredApprovals.length && form.get('researchGroupId')?.value) {
+            <mat-option disabled>该课题组无有效批件</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>物种 *</mat-label>
+        <input matInput formControlName="species" placeholder="如：小鼠、大鼠、兔">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>品系 *</mat-label>
+        <input matInput formControlName="strain" placeholder="如：C57BL/6、SD、BALB/c">
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>性别 *</mat-label>
+        <mat-select formControlName="gender" [disabled]="isViewOnly">
+          @for (opt of genderOptions; track opt.value) {
+            <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>周龄 *</mat-label>
+        <input matInput type="number" formControlName="ageWeeks" min="0" placeholder="周">
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>订购数量 *</mat-label>
+        <input matInput type="number" formControlName="quantity" min="1" placeholder="只数">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>供应商 *</mat-label>
+        <input matInput formControlName="supplier" placeholder="如：北京维通利华">
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>预计到货日期</mat-label>
+        <input matInput [matDatepicker]="expDp" formControlName="expectedDate">
+        <mat-datepicker-toggle matSuffix [for]="expDp"></mat-datepicker-toggle>
+        <mat-datepicker #expDp></mat-datepicker>
+      </mat-form-field>
+
+      <div></div>
+    </div>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>备注说明</mat-label>
+      <textarea matInput formControlName="remarks" rows="2"></textarea>
+    </mat-form-field>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="onCancel()">
+      {{ isViewOnly ? '关闭' : '取消' }}
+    </button>
+    @if (!isViewOnly) {
+      @if (!isEdit) {
+        <button mat-button type="button" color="accent"
+                (click)="onSubmitAndSubmit()"
+                [disabled]="isSubmitting || form.invalid">
+          创建并提交
+        </button>
+      }
+      <button mat-raised-button color="primary" type="submit" [disabled]="isSubmitting || form.invalid">
+        {{ isEdit ? '保存' : '创建' }}
+      </button>
+    }
+  </mat-dialog-actions>
+</form>

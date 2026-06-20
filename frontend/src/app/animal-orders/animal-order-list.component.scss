@@ -1,0 +1,130 @@
+.list-container {
+  padding: 24px;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+
+  .search-box {
+    flex: 1;
+    max-width: 500px;
+
+    .search-field {
+      width: 100%;
+    }
+  }
+}
+
+.table-wrapper {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+
+  table {
+    width: 100%;
+
+    &.loading {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    th {
+      font-weight: 600;
+      color: #555;
+      background: #fafafa;
+    }
+
+    td, th {
+      padding: 12px 16px;
+      font-size: 13px;
+    }
+
+    tr:hover {
+      background: #f5f9ff;
+    }
+
+    .sub-text {
+      font-size: 12px;
+      color: #888;
+      margin-top: 2px;
+    }
+
+    .quantity-cell {
+      font-weight: 600;
+      color: #1976d2;
+      text-align: center;
+    }
+  }
+
+  .no-data {
+    padding: 48px 0;
+    text-align: center;
+
+    .loading-tip {
+      color: #999;
+    }
+
+    .empty-tip {
+      mat-icon {
+        font-size: 48px;
+        color: #ccc;
+        width: 48px;
+        height: 48px;
+      }
+
+      p {
+        margin: 8px 0 0;
+        color: #999;
+        font-size: 14px;
+      }
+    }
+  }
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+
+  &.status-draft {
+    background: #eceff1;
+    color: #455a64;
+  }
+
+  &.status-submitted {
+    background: #fff3e0;
+    color: #e65100;
+  }
+
+  &.status-approved {
+    background: #e3f2fd;
+    color: #1565c0;
+  }
+
+  &.status-rejected {
+    background: #ffebee;
+    color: #c62828;
+  }
+
+  &.status-intransit {
+    background: #f3e5f5;
+    color: #6a1b9a;
+  }
+
+  &.status-received {
+    background: #e8f5e9;
+    color: #2e7d32;
+  }
+
+  &.status-cancelled {
+    background: #f5f5f5;
+    color: #757575;
+    text-decoration: line-through;
+  }
+}

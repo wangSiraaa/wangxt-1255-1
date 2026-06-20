@@ -1,0 +1,116 @@
+<div class="list-container">
+  <div class="toolbar">
+    <div class="search-box">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-icon matPrefix>search</mat-icon>
+        <input matInput [formControl]="searchControl" placeholder="搜索批件编号、课题名称">
+      </mat-form-field>
+    </div>
+    <button mat-raised-button color="primary" (click)="openDialog()">
+      <mat-icon>add</mat-icon>
+      新增批件
+    </button>
+  </div>
+
+  <div class="table-wrapper">
+    <table mat-table [dataSource]="dataSource" [class.loading]="isLoading">
+      <ng-container matColumnDef="approvalNumber">
+        <th mat-header-cell *matHeaderCellDef>批件编号</th>
+        <td mat-cell *matCellDef="let row">
+          <strong>{{ row.approvalNumber }}</strong>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="title">
+        <th mat-header-cell *matHeaderCellDef>课题名称</th>
+        <td mat-cell *matCellDef="let row">{{ row.title }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="researchGroup">
+        <th mat-header-cell *matHeaderCellDef>所属课题组</th>
+        <td mat-cell *matCellDef="let row">{{ row.researchGroup?.name || '-' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="approvalDate">
+        <th mat-header-cell *matHeaderCellDef>审批日期</th>
+        <td mat-cell *matCellDef="let row">{{ row.approvalDate | date:'yyyy-MM-dd' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="effectiveDate">
+        <th mat-header-cell *matHeaderCellDef>生效日期</th>
+        <td mat-cell *matCellDef="let row">{{ row.approvalDate | date:'yyyy-MM-dd' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="expiryDate">
+        <th mat-header-cell *matHeaderCellDef>到期日期</th>
+        <td mat-cell *matCellDef="let row" [class.expired-date]="isExpired(row)">
+          {{ row.expiryDate | date:'yyyy-MM-dd' }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>状态</th>
+        <td mat-cell *matCellDef="let row">
+          <span class="status-badge" [ngClass]="getStatusClass(row)">
+            {{ getStatusText(row.status) }}
+          </span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="usage">
+        <th mat-header-cell *matHeaderCellDef>已用/总数</th>
+        <td mat-cell *matCellDef="let row">
+          <div class="usage-cell">
+            <span>{{ row.usedAnimalCount || 0 }} / {{ row.maxAnimalCount }}</span>
+            <div class="progress-bar">
+              <div class="progress-fill"
+                   [style.width.%]="row.maxAnimalCount ? ((row.usedAnimalCount || 0) / row.maxAnimalCount * 100) : 0"
+                   [class.over-limit]="(row.usedAnimalCount || 0) > row.maxAnimalCount">
+              </div>
+            </div>
+          </div>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>操作</th>
+        <td mat-cell *matCellDef="let row">
+          <button mat-icon-button color="primary" matTooltip="查看详情" (click)="onViewDetail(row)">
+            <mat-icon>visibility</mat-icon>
+          </button>
+          <button mat-icon-button color="accent" matTooltip="编辑" (click)="openDialog(row)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" matTooltip="删除" (click)="onDelete(row)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+      <tr class="no-data-row" *matNoDataRow>
+        <td [attr.colspan]="displayedColumns.length" class="no-data">
+          @if (isLoading) {
+            <div class="loading-tip">加载中...</div>
+          } @else {
+            <div class="empty-tip">
+              <mat-icon>inbox</mat-icon>
+              <p>暂无数据</p>
+            </div>
+          }
+        </td>
+      </tr>
+    </table>
+
+    <mat-paginator
+      [length]="totalCount"
+      [pageSize]="pageSize"
+      [pageIndex]="pageIndex"
+      [pageSizeOptions]="[10, 20, 50, 100]"
+      showFirstLastButtons
+      (page)="onPageChange($event)">
+    </mat-paginator>
+  </div>
+</div>

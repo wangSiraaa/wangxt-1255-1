@@ -1,0 +1,128 @@
+<div class="list-container">
+  <div class="toolbar">
+    <div class="search-box">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-icon matPrefix>search</mat-icon>
+        <input matInput [formControl]="searchControl" placeholder="搜索订单号、课题组、物种">
+      </mat-form-field>
+    </div>
+    <button mat-raised-button color="primary" (click)="openDialog()">
+      <mat-icon>add</mat-icon>
+      新增订单
+    </button>
+  </div>
+
+  <div class="table-wrapper">
+    <table mat-table [dataSource]="dataSource" [class.loading]="isLoading">
+      <ng-container matColumnDef="orderNumber">
+        <th mat-header-cell *matHeaderCellDef>订单号</th>
+        <td mat-cell *matCellDef="let row"><strong>{{ row.orderNumber }}</strong></td>
+      </ng-container>
+
+      <ng-container matColumnDef="researchGroup">
+        <th mat-header-cell *matHeaderCellDef>课题组</th>
+        <td mat-cell *matCellDef="let row">{{ row.researchGroup?.name || '-' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="ethicsApproval">
+        <th mat-header-cell *matHeaderCellDef>伦理批件</th>
+        <td mat-cell *matCellDef="let row">{{ row.ethicsApproval?.approvalNumber || '-' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="speciesInfo">
+        <th mat-header-cell *matHeaderCellDef>物种/品系/性别</th>
+        <td mat-cell *matCellDef="let row">
+          <div>{{ row.species }} / {{ row.strain }}</div>
+          <div class="sub-text">
+            {{ getGenderText(row.gender) }} · {{ row.ageWeeks }}周龄
+          </div>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="quantity">
+        <th mat-header-cell *matHeaderCellDef>数量</th>
+        <td mat-cell *matCellDef="let row" class="quantity-cell">{{ row.quantity }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="supplier">
+        <th mat-header-cell *matHeaderCellDef>供应商</th>
+        <td mat-cell *matCellDef="let row">{{ row.supplier || '-' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>状态</th>
+        <td mat-cell *matCellDef="let row">
+          <span class="status-badge" [ngClass]="getStatusClass(row.status)">
+            {{ getStatusText(row.status) }}
+          </span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="createdAt">
+        <th mat-header-cell *matHeaderCellDef>创建时间</th>
+        <td mat-cell *matCellDef="let row">{{ row.createdAt | date:'yyyy-MM-dd' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>操作</th>
+        <td mat-cell *matCellDef="let row">
+          <button mat-icon-button color="primary" matTooltip="查看" (click)="onView(row)">
+            <mat-icon>visibility</mat-icon>
+          </button>
+
+          @if (canSubmit(row)) {
+            <button mat-icon-button color="accent" matTooltip="提交" (click)="onSubmitOrder(row)">
+              <mat-icon>send</mat-icon>
+            </button>
+          }
+
+          @if (canApprove(row)) {
+            <button mat-icon-button color="primary" matTooltip="审批通过" (click)="onApprove(row)">
+              <mat-icon>check_circle</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" matTooltip="审批拒绝" (click)="onReject(row)">
+              <mat-icon>cancel</mat-icon>
+            </button>
+          }
+
+          @if (canMarkTransit(row)) {
+            <button mat-icon-button color="accent" matTooltip="标记运输中" (click)="onMarkTransit(row)">
+              <mat-icon>local_shipping</mat-icon>
+            </button>
+          }
+
+          @if (canReceive(row)) {
+            <button mat-icon-button color="primary" matTooltip="接收" (click)="onReceive(row)">
+              <mat-icon>archive</mat-icon>
+            </button>
+          }
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+      <tr class="no-data-row" *matNoDataRow>
+        <td [attr.colspan]="displayedColumns.length" class="no-data">
+          @if (isLoading) {
+            <div class="loading-tip">加载中...</div>
+          } @else {
+            <div class="empty-tip">
+              <mat-icon>inbox</mat-icon>
+              <p>暂无订单数据</p>
+            </div>
+          }
+        </td>
+      </tr>
+    </table>
+
+    <mat-paginator
+      [length]="totalCount"
+      [pageSize]="pageSize"
+      [pageIndex]="pageIndex"
+      [pageSizeOptions]="[10, 20, 50, 100]"
+      showFirstLastButtons
+      (page)="onPageChange($event)">
+    </mat-paginator>
+  </div>
+</div>

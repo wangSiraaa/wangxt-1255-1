@@ -1,0 +1,66 @@
+<h2 mat-dialog-title>{{ isEdit ? '编辑课题组' : '新增课题组' }}</h2>
+
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <mat-dialog-content class="dialog-content">
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>课题组编号 *</mat-label>
+        <input matInput formControlName="groupCode" placeholder="请输入编号">
+        @if (f['groupCode'].invalid && (f['groupCode'].dirty || f['groupCode'].touched)) {
+          <mat-error>编号必填</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>课题组名称 *</mat-label>
+        <input matInput formControlName="name" placeholder="请输入名称">
+        @if (f['name'].invalid && (f['name'].dirty || f['name'].touched)) {
+          <mat-error>名称必填</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>负责人 *</mat-label>
+        <input matInput formControlName="principalInvestigator" placeholder="请输入负责人姓名">
+        @if (f['principalInvestigator'].invalid && (f['principalInvestigator'].dirty || f['principalInvestigator'].touched)) {
+          <mat-error>负责人必填</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>所属部门</mat-label>
+        <input matInput formControlName="department" placeholder="请输入部门">
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>联系电话</mat-label>
+        <input matInput formControlName="contactPhone" placeholder="请输入电话">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>联系邮箱</mat-label>
+        <input matInput formControlName="contactEmail" placeholder="请输入邮箱">
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>备注说明</mat-label>
+      <textarea matInput formControlName="remarks" rows="3" placeholder="请输入备注"></textarea>
+    </mat-form-field>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="onCancel()" [disabled]="isSubmitting">取消</button>
+    <button mat-raised-button color="primary" type="submit" [disabled]="isSubmitting || form.invalid">
+      @if (isSubmitting) {
+        <mat-spinner diameter="18"></mat-spinner>
+      } @else {
+        {{ isEdit ? '保存' : '创建' }}
+      }
+    </button>
+  </mat-dialog-actions>
+</form>

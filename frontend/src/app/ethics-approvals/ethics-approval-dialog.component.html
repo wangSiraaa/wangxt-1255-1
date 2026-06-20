@@ -1,0 +1,106 @@
+<h2 mat-dialog-title>{{ isViewOnly ? '批件详情' : (isEdit ? '编辑伦理批件' : '新增伦理批件') }}</h2>
+
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <mat-dialog-content class="dialog-content">
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>所属课题组 *</mat-label>
+        <mat-select formControlName="researchGroupId" [disabled]="isViewOnly">
+          @for (group of researchGroups; track group.id) {
+            <mat-option [value]="group.id">
+              {{ group.code }} - {{ group.name }} ({{ group.principalInvestigator }})
+            </mat-option>
+          }
+        </mat-select>
+        @if (f['researchGroupId'].invalid && (f['researchGroupId'].dirty || f['researchGroupId'].touched)) {
+          <mat-error>请选择课题组</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>批件编号 *</mat-label>
+        <input matInput formControlName="approvalNumber" placeholder="如：IACUC-2026-001">
+        @if (f['approvalNumber'].invalid && (f['approvalNumber'].dirty || f['approvalNumber'].touched)) {
+          <mat-error>批件编号必填</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>课题名称 *</mat-label>
+      <input matInput formControlName="title" placeholder="请输入课题名称">
+      @if (f['title'].invalid && (f['title'].dirty || f['title'].touched)) {
+        <mat-error>课题名称必填</mat-error>
+      }
+    </mat-form-field>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>审批日期 *</mat-label>
+        <input matInput [matDatepicker]="approvalDp" formControlName="approvalDate">
+        <mat-datepicker-toggle matSuffix [for]="approvalDp"></mat-datepicker-toggle>
+        <mat-datepicker #approvalDp></mat-datepicker>
+        @if (f['approvalDate'].invalid && (f['approvalDate'].dirty || f['approvalDate'].touched)) {
+          <mat-error>审批日期必填</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>生效日期 *</mat-label>
+        <input matInput [matDatepicker]="effectiveDp" formControlName="effectiveDate">
+        <mat-datepicker-toggle matSuffix [for]="effectiveDp"></mat-datepicker-toggle>
+        <mat-datepicker #effectiveDp></mat-datepicker>
+        @if (f['effectiveDate'].invalid && (f['effectiveDate'].dirty || f['effectiveDate'].touched)) {
+          <mat-error>生效日期必填</mat-error>
+        }
+        @if (form.errors?.['effectiveBeforeApproval']) {
+          <mat-error>不能早于审批日期</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>到期日期 *</mat-label>
+        <input matInput [matDatepicker]="expiryDp" formControlName="expiryDate">
+        <mat-datepicker-toggle matSuffix [for]="expiryDp"></mat-datepicker-toggle>
+        <mat-datepicker #expiryDp></mat-datepicker>
+        @if (f['expiryDate'].invalid && (f['expiryDate'].dirty || f['expiryDate'].touched)) {
+          <mat-error>到期日期必填</mat-error>
+        }
+        @if (form.errors?.['dateRange']) {
+          <mat-error>必须晚于生效日期</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>最大动物数量 *</mat-label>
+        <input matInput type="number" formControlName="maximumAnimals" min="1" placeholder="请输入数量">
+        @if (f['maximumAnimals'].invalid && (f['maximumAnimals'].dirty || f['maximumAnimals'].touched)) {
+          <mat-error>请输入有效的数字（≥1）</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>动物种类/品系说明</mat-label>
+      <input matInput formControlName="animalTypes" placeholder="如：小鼠C57BL/6，大鼠SD">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>备注说明</mat-label>
+      <textarea matInput formControlName="remarks" rows="3" placeholder="请输入备注"></textarea>
+    </mat-form-field>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="onCancel()">
+      {{ isViewOnly ? '关闭' : '取消' }}
+    </button>
+    @if (!isViewOnly) {
+      <button mat-raised-button color="primary" type="submit" [disabled]="isSubmitting || form.invalid">
+        {{ isEdit ? '保存' : '创建' }}
+      </button>
+    }
+  </mat-dialog-actions>
+</form>
