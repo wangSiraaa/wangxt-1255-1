@@ -33,9 +33,9 @@ public class ExceptionHandlingMiddleware
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
-        var response = ApiResponse.FailureResult(
+        var response = ApiResponse.Failure(
             $"服务器内部错误: {exception.Message}",
-            new[] { exception.StackTrace ?? string.Empty });
+            new List<string> { exception.StackTrace ?? string.Empty });
 
         var options = new JsonSerializerOptions
         {

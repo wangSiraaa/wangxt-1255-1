@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatBadgeModule } from '@angular/material/badge';
 import { RouterModule } from '@angular/router';
+import { ThemePalette } from '@angular/material/core';
 
 @Component({
   selector: 'app-dashboard',
@@ -54,16 +55,16 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit(): void {}
 
-  getStatusBadge(status: string): string {
-    const map: Record<string, string> = {
+  getStatusBadge(status: string): ThemePalette | undefined {
+    const map: Record<string, ThemePalette | undefined> = {
       '审批中': 'accent',
       '运输中': 'accent',
       '已接收': 'primary',
-      '待提交': '',
+      '待提交': undefined,
       '已完成': 'primary',
       '进行中': 'primary',
-      '已结束': ''
+      '已结束': undefined
     };
-    return map[status] || '';
+    return map[status];
   }
 }

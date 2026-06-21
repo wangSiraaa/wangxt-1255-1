@@ -239,32 +239,39 @@ public class AnimalBatchService : IAnimalBatchService
             var deathRecords = await _unitOfWork.DeathRecords.FindAsync(
                 d => d.AnimalBatchId == batchId && !d.IsDeleted, cancellationToken);
 
-            var investigationIds = deathRecords
+            var abnormalDeathRecords = deathRecords
+                .Where(d => d.DeathType == DeathType.Abnormal)
+                .ToList();
+
+            var abnormalWithoutInvestigation = abnormalDeathRecords
+                .Where(d => !d.InvestigationId.HasValue)
+                .ToList();
+
+            if (abnormalWithoutInvestigation.Any())
+            {
+                await _unitOfWork.RollbackTransactionAsync(cancellationToken);
+                return ApiResponse.Failure($"存在 {abnormalWithoutInvestigation.Count} 条异常死亡记录未创建调查，不能关闭批次");
+            }
+
+            var investigationIds = abnormalDeathRecords
                 .Where(d => d.InvestigationId.HasValue)
                 .Select(d => d.InvestigationId!.Value)
                 .Distinct()
                 .ToList();
 
-            var investigations = new Dictionary<Guid, DeathInvestigation>();
             if (investigationIds.Any())
             {
                 var allInvestigations = await _unitOfWork.DeathInvestigations.GetAllAsync(cancellationToken);
-                investigations = allInvestigations
+                var pendingInvestigations = allInvestigations
                     .Where(i => investigationIds.Contains(i.Id))
-                    .ToDictionary(i => i.Id);
-            }
+                    .Any(i => i.Status != InvestigationStatus.Completed
+                            && i.Status != InvestigationStatus.Closed);
 
-            var pendingInvestigations = deathRecords
-                .Where(d => d.DeathType == DeathType.Abnormal && d.InvestigationId.HasValue)
-                .Select(d => new { d.DeathType, Investigation = d.InvestigationId.HasValue && investigations.ContainsKey(d.InvestigationId.Value) ? investigations[d.InvestigationId.Value] : null })
-                .Where(d => d.Investigation != null)
-                .Any(d => d.Investigation!.Status != InvestigationStatus.Completed
-                         && d.Investigation!.Status != InvestigationStatus.Closed);
-
-            if (pendingInvestigations)
-            {
-                await _unitOfWork.RollbackTransactionAsync(cancellationToken);
-                return ApiResponse.Failure("存在未完成调查的异常死亡记录，不能关闭批次");
+                if (pendingInvestigations)
+                {
+                    await _unitOfWork.RollbackTransactionAsync(cancellationToken);
+                    return ApiResponse.Failure("存在未完成调查的异常死亡记录，不能关闭批次");
+                }
             }
 
             if (entity.CurrentCount != 0)
@@ -392,32 +399,44 @@ public class AnimalBatchService : IAnimalBatchService
 
     private async Task<bool> CanCloseBatchAsync(AnimalBatch batch, CancellationToken cancellationToken = default)
     {
+        if (batch.CurrentCount != 0)
+        {
+            return false;
+        }
+
         var deathRecords = await _unitOfWork.DeathRecords.FindAsync(
             d => d.AnimalBatchId == batch.Id && !d.IsDeleted, cancellationToken);
 
-        var investigationIds = deathRecords
+        var abnormalDeathRecords = deathRecords
+            .Where(d => d.DeathType == DeathType.Abnormal)
+            .ToList();
+
+        if (abnormalDeathRecords.Any(d => !d.InvestigationId.HasValue))
+        {
+            return false;
+        }
+
+        var investigationIds = abnormalDeathRecords
             .Where(d => d.InvestigationId.HasValue)
             .Select(d => d.InvestigationId!.Value)
             .Distinct()
             .ToList();
 
-        var investigations = new Dictionary<Guid, DeathInvestigation>();
         if (investigationIds.Any())
         {
             var allInvestigations = await _unitOfWork.DeathInvestigations.GetAllAsync(cancellationToken);
-            investigations = allInvestigations
+            var hasPending = allInvestigations
                 .Where(i => investigationIds.Contains(i.Id))
-                .ToDictionary(i => i.Id);
+                .Any(i => i.Status != InvestigationStatus.Completed
+                        && i.Status != InvestigationStatus.Closed);
+
+            if (hasPending)
+            {
+                return false;
+            }
         }
 
-        var pendingInvestigations = deathRecords
-            .Where(d => d.DeathType == DeathType.Abnormal && d.InvestigationId.HasValue)
-            .Select(d => d.InvestigationId.HasValue && investigations.ContainsKey(d.InvestigationId.Value) ? investigations[d.InvestigationId.Value] : null)
-            .Where(i => i != null)
-            .Any(i => i!.Status != InvestigationStatus.Completed
-                     && i!.Status != InvestigationStatus.Closed);
-
-        return !pendingInvestigations && batch.CurrentCount == 0;
+        return true;
     }
 
     private async Task<int> GetCageOccupancyCountAsync(Guid batchId, CancellationToken cancellationToken = default)

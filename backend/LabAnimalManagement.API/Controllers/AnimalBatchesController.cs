@@ -107,4 +107,17 @@ public class AnimalBatchesController : ControllerBase
         }
         return Ok(result);
     }
+
+    [HttpDelete("{id}")]
+    public async Task<ActionResult<ApiResponse>> Delete(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        var result = await _service.DeleteAsync(id, cancellationToken);
+        if (!result.Success)
+        {
+            return BadRequest(result);
+        }
+        return Ok(result);
+    }
 }
