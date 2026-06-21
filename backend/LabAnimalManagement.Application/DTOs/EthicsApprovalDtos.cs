@@ -19,6 +19,7 @@ public class EthicsApprovalDto
     public string? Remarks { get; set; }
     public bool IsExpired { get; set; }
     public bool IsValid { get; set; }
+    public int RemainingDays { get; set; }
 }
 
 public class CreateEthicsApprovalDto

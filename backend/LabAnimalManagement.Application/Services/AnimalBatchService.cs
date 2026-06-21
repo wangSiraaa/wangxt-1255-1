@@ -450,9 +450,14 @@ public class AnimalBatchService : IAnimalBatchService
     {
         var researchGroup = await _unitOfWork.ResearchGroups.GetByIdAsync(entity.ResearchGroupId, cancellationToken);
         AnimalOrder? order = null;
+        EthicsApproval? ethicsApproval = null;
         if (entity.AnimalOrderId.HasValue)
         {
             order = await _unitOfWork.AnimalOrders.GetByIdAsync(entity.AnimalOrderId.Value, cancellationToken);
+            if (order != null && order.EthicsApprovalId != Guid.Empty)
+            {
+                ethicsApproval = await _unitOfWork.EthicsApprovals.GetByIdAsync(order.EthicsApprovalId, cancellationToken);
+            }
         }
 
         return new AnimalBatchDto
@@ -479,7 +484,10 @@ public class AnimalBatchService : IAnimalBatchService
             HealthStatus = entity.HealthStatus,
             Remarks = entity.Remarks,
             CanClose = await CanCloseBatchAsync(entity, cancellationToken),
-            CageOccupancyCount = await GetCageOccupancyCountAsync(entity.Id, cancellationToken)
+            CageOccupancyCount = await GetCageOccupancyCountAsync(entity.Id, cancellationToken),
+            EthicsApprovalNumber = ethicsApproval?.ApprovalNumber,
+            EthicsApprovalExpiryDate = ethicsApproval?.ExpiryDate,
+            EthicsApprovalRemainingDays = ethicsApproval != null ? (ethicsApproval.ExpiryDate - DateTime.Now).Days : null
         };
     }
 }

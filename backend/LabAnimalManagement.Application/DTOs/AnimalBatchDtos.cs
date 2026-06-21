@@ -27,6 +27,9 @@ public class AnimalBatchDto
     public string? Remarks { get; set; }
     public bool CanClose { get; set; }
     public int CageOccupancyCount { get; set; }
+    public string? EthicsApprovalNumber { get; set; }
+    public DateTime? EthicsApprovalExpiryDate { get; set; }
+    public int? EthicsApprovalRemainingDays { get; set; }
 }
 
 public class CreateAnimalBatchDto

@@ -32,6 +32,23 @@
       </mat-form-field>
     </div>
 
+    @if (selectedApproval) {
+      <div class="expiry-reminder"
+           [class.reminder-warn]="remainingDays !== null && remainingDays <= 30 && remainingDays > 0"
+           [class.reminder-danger]="remainingDays !== null && remainingDays <= 0">
+        <mat-icon>{{ remainingDays !== null && remainingDays <= 0 ? 'error' : 'schedule' }}</mat-icon>
+        <span>
+          伦理批件「{{ selectedApproval.approvalNumber }}」有效期至
+          {{ selectedApproval.expiryDate | date: 'yyyy-MM-dd' }}，
+          @if (remainingDays !== null && remainingDays > 0) {
+            剩余有效 <strong>{{ remainingDays }}</strong> 天
+          } @else {
+            已过期，请及时续办
+          }
+        </span>
+      </div>
+    }
+
     <div class="form-row">
       <mat-form-field appearance="outline">
         <mat-label>物种 *</mat-label>

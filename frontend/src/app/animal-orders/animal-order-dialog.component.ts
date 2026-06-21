@@ -148,6 +148,16 @@ export class AnimalOrderDialogComponent implements OnInit {
     return this.form.controls;
   }
 
+  get selectedApproval(): EthicsApproval | null {
+    const id = this.form?.get('ethicsApprovalId')?.value;
+    if (!id) return null;
+    return this.ethicsApprovals.find(a => a.id === id) || null;
+  }
+
+  get remainingDays(): number | null {
+    return this.selectedApproval?.remainingDays ?? null;
+  }
+
   onCancel(): void {
     this.dialogRef.close(false);
   }

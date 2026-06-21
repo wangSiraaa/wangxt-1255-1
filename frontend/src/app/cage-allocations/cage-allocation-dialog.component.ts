@@ -66,6 +66,22 @@ interface DialogData {
           </mat-form-field>
         </div>
 
+        <div class="expiry-reminder" *ngIf="selectedBatch?.ethicsApprovalNumber"
+             [class.reminder-warn]="(selectedBatch?.ethicsApprovalRemainingDays ?? 0) <= 30 && (selectedBatch?.ethicsApprovalRemainingDays ?? 0) > 0"
+             [class.reminder-danger]="(selectedBatch?.ethicsApprovalRemainingDays ?? 0) <= 0">
+          <mat-icon>{{ (selectedBatch?.ethicsApprovalRemainingDays ?? 0) <= 0 ? 'error' : 'schedule' }}</mat-icon>
+          <span>
+            关联伦理批件「{{ selectedBatch?.ethicsApprovalNumber }}」有效期至
+            {{ selectedBatch?.ethicsApprovalExpiryDate | date: 'yyyy-MM-dd' }}，
+            <span *ngIf="(selectedBatch?.ethicsApprovalRemainingDays ?? 0) > 0">
+              剩余有效 <strong>{{ selectedBatch?.ethicsApprovalRemainingDays }}</strong> 天
+            </span>
+            <span *ngIf="(selectedBatch?.ethicsApprovalRemainingDays ?? 0) <= 0">
+              已过期，请提醒课题组续办
+            </span>
+          </span>
+        </div>
+
         <div class="form-row">
           <mat-form-field appearance="outline">
             <mat-label>笼位 *</mat-label>
@@ -198,6 +214,36 @@ interface DialogData {
     }
     .summary-arrow {
       color: #999;
+    }
+    .expiry-reminder {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      margin-bottom: 16px;
+      border-radius: 6px;
+      background: #e8f5e9;
+      border-left: 4px solid #4caf50;
+      font-size: 13px;
+      color: #2e7d32;
+    }
+    .expiry-reminder mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+    .expiry-reminder strong {
+      font-size: 16px;
+    }
+    .expiry-reminder.reminder-warn {
+      background: #fff3e0;
+      border-left-color: #ff9800;
+      color: #e65100;
+    }
+    .expiry-reminder.reminder-danger {
+      background: #ffebee;
+      border-left-color: #f44336;
+      color: #c62828;
     }
   `]
 })

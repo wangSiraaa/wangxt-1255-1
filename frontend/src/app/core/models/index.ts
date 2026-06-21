@@ -96,6 +96,7 @@ export interface EthicsApproval extends BaseEntity {
   remarks?: string;
   isExpired: boolean;
   isValid: boolean;
+  remainingDays: number;
 }
 
 export interface EthicsApprovalCreateDto {
@@ -209,6 +210,9 @@ export interface AnimalBatch extends BaseEntity {
   remarks?: string;
   canClose: boolean;
   cageOccupancyCount: number;
+  ethicsApprovalNumber?: string;
+  ethicsApprovalExpiryDate?: Date | string;
+  ethicsApprovalRemainingDays?: number;
 }
 
 export interface AnimalBatchCreateDto {

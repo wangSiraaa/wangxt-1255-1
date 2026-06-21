@@ -324,7 +324,8 @@ public class EthicsApprovalService : IEthicsApprovalService
             IsExpired = DateTime.Now > entity.ExpiryDate,
             IsValid = entity.Status == EthicsApprovalStatus.Approved
                       && DateTime.Now >= entity.ApprovalDate
-                      && DateTime.Now <= entity.ExpiryDate
+                      && DateTime.Now <= entity.ExpiryDate,
+            RemainingDays = (entity.ExpiryDate - DateTime.Now).Days
         };
     }
 }
